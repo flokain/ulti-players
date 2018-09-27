@@ -1,19 +1,19 @@
-from django.urls import path
+from django.urls import path, re_path
 from django.views import generic
-from . import views
+from viewflow.flow.viewset import FlowViewSet
 from django.conf.urls import url, include
 from rest_framework import routers
-from player_management import views
-
+from . import views
+from . import flows
 app_name = 'player_management'
 
 router = routers.DefaultRouter()
 router.register('Person', views.PersonViewSet)
 
+a= flows.PlayerToTeamMembershipClaimFlow.urls
 
 urlpatterns = [
     path('', views.index,  name='index'),
     path('api/', include(router.urls)),
-    #path('', views.IndexView.as_view(),  name='index'),
-
+    flows.PlayerToTeamMembershipClaimFlow.instance.urls
 ]

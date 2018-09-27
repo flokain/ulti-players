@@ -7,41 +7,43 @@ from django.contrib.auth import models as authModels
 
 
 # Create your models here.
+from viewflow.models import Process
+
 
 class Person(models.Model):
     SEX = [
         ['male']*2,
         ['female']*2,
-    ]
+        ]
     """ personal information"""
-    firstname = models.CharField(max_length=200)
-    lastname = models.CharField(max_length=200)
-    birthdate = models.DateField()
-    sex = models.CharField(max_length=5, choices=SEX)
+    firstname = models.CharField(max_length=200,blank=True)
+    lastname = models.CharField(max_length=200,blank=True)
+    birthdate = models.DateField(default=date.today, null=True, blank=True)
+    sex = models.CharField(max_length=5, choices=SEX, blank=True)
 
     """  contact information"""
     email = models.EmailField()
-    zip = models.PositiveIntegerField()
-
-
-""" An organization is an abstract concept for people or parties
-    who organize themselves for a specific purpose.  Teams, clubs
-    and associations are the 3 different organization types in this model"""
+    zip = models.PositiveIntegerField(blank=True, null=True,)
 
 
 class Organisation(models.Model):
+    """ An organization is an abstract concept for people or parties
+        who organize themselves for a specific purpose.  Teams, clubs
+        and associations are the 3 different organization types in this model"""
+
     name = models.CharField(max_length=300)
     founded_on = models.DateField()
     disolved_on = models.DateField()  # TODO: proper english
     description = models.TextField()
 
 
-"""A Team is an organization owned by a Club. it consists of a list
-   of players which is antemporary assignment of a player to a team"""
-
-
 class Team(models.Model):
-    pass
+    """A Team is an organization owned by a Club. it consists of a list
+       of players which is antemporary assignment of a player to a team
+    """
+
+
+pass
 
 
 class Club(models.Model):
@@ -61,12 +63,11 @@ class Player(models.Model):
     number = models.PositiveIntegerField()
 
 
-""" A membership connects an organization with another organozation
-    or peraon. It is reported by, and  confirmed by a person 
-    it my have a from and until date. missing values asumen an infinite Membership period"""
-
-
 class Membership(models.Model):
+    """ A membership connects an organization with another organozation
+        or peraon. It is reported by, and  confirmed by a person
+        it my have a from and until date. missing values asumen an infinite Membership period
+    """
     valid_until = models.DateField()
     valid_from = models.DateField()
     reporter: User = models.ForeignKey(
@@ -74,11 +75,6 @@ class Membership(models.Model):
         on_delete=models.CASCADE,
         related_name="reported_%(class)ss",
         related_query_name="%(class)s_reporter")
-    approved_by: User = models.ForeignKey(
-        authModels.User,
-        on_delete=models.CASCADE,
-        related_name="approved_%(class)ss",
-        related_query_name="%(class)s_approver")
 
     class Meta:
         abstract = True
@@ -93,9 +89,6 @@ class PlayerToTeamMembership(Membership):
 
     class Meta(Membership.Meta):
         db_table = 'PlayerToTeamMembership'
-
-
-"""p """
 
 
 class TeamToClubTeamMembership(Membership):
@@ -128,3 +121,33 @@ class PersonToAssociationMembership(Membership):
 
     class Meta(Membership.Meta):
         db_table = 'PersonToAssociationMembership'
+
+
+    """
+    player claim management objects
+    """
+
+
+class Claim(models.Model):
+    """A claim is the initial object that is created, when an admin wants to add a player to his clb
+    """
+    membership = models.ForeignKey(PlayerToTeamMembership, on_delete=models.CASCADE)
+
+
+class Receipt(models.Model):
+    """A receipt is created when a claim is still standing after the deadline is reached
+    """
+
+
+class PlayerToTeamMembershipClaimProcess(Process):
+
+    player = models.ForeignKey(Person, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+
+    claims = models.ManyToManyField(Claim)
+    receipts = models.ManyToManyField(Receipt)
+    due_date = models.DateField()
+    payment_due_date = models.DateField()
+
+
+

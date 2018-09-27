@@ -33,7 +33,6 @@ ALLOWED_HOSTS = ['venv.hbqg3zr3a3.us-west-2.elasticbeanstalk.com',
 # Application definition
 
 INSTALLED_APPS = [
-    'player_management.apps.PlayerManagementConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'viewflow',
+    'player_management.apps.PlayerManagementConfig',
 ]
 
 MIDDLEWARE = [

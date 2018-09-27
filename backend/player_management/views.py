@@ -1,8 +1,10 @@
-from django.shortcuts import render
-
 # Create your views here.
 from django.views import generic
 from django.http import HttpResponse
+from . import models as pm
+from rest_framework import viewsets
+from .serializers import PersonSerializer
+from rest_framework import permissions
 
 def index(response):
     return HttpResponse("Hello, world. You're at the frisbee index.")
@@ -10,12 +12,6 @@ def index(response):
 
 class IndexView(generic.TemplateView):
     template_name = 'player_management/index.html'
-
-
-import player_management.models as pm
-from rest_framework import viewsets
-from player_management.serializers import PersonSerializer
-from rest_framework import permissions
 
 
 class PersonViewSet(viewsets.ModelViewSet):
