@@ -25,7 +25,7 @@ The first time, you might need to create the admin user
 ```
 Start the dev server using
 ```
-> frisbee-venv\Scripts\python.exe manage.py runserver
+> frisbee-venv\Scripts\python.exe backend\manage.py runserver
 ```
 
 # Develop
